@@ -1,0 +1,89 @@
+<div class="container pt-4">
+  <div ngbAccordion>
+    <div ngbAccordionItem>
+      <h2 ngbAccordionHeader>
+        <button ngbAccordionButton>About this Program</button>
+      </h2>
+      <div ngbAccordionCollapse>
+        <div ngbAccordionBody>
+          <ng-template>
+            <p>
+              This program is a modified version of u/agregen's CYOA Compressor for the browser modified to compress
+              to avif instead of webp.  All modern browsers now <a href="https://caniuse.com/avif">support</a> the avif format.
+              In general this produces files about half to two thirds the size of the <a href="">original CYOA Compressor</a>
+              at the expense of running much slower.  You can see a performance comparison below.  Execution time is approximate on
+              a Ryzen 9 5900X system with 64GB of DDR4 3600.
+
+            <table>
+              <thead>
+                <tr>
+                  <th>CYOA</th>
+                  <th style="text-align: center">Number of Images</th>
+                  <th style="text-align: right">Original size</th>
+                  <th style="text-align: right">Webp Compressed size</th>
+                  <th style="text-align: right">Webp Elapsed Time</th>
+                  <th style="text-align: right">AVIF Compressed size</th>
+                  <th style="text-align: right">Webp Elapsed Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Kitsune</td>
+                  <td style="text-align: center">99</td>
+                  <td style="text-align: right">15,033,025</td>
+                  <td style="text-align: right">8,281,761</td>
+                  <td style="text-align: right">0:07</td>
+                  <td style="text-align: right">4,897,273</td>
+                  <td style="text-align: right">0:19</td>
+                </tr>
+                <tr>
+                  <td>Gyaru Gift</td>
+                  <td style="text-align: center">378</td>
+                  <td style="text-align: right">86,614,163</td>
+                  <td style="text-align: right">26,598,148</td>
+                  <td style="text-align: right">0:18</td>
+                  <td style="text-align: right">17,660,652</td>
+                  <td style="text-align: right">0:52</td>
+                </tr>
+                <tr>
+                  <td>JRPG Traitor</td>
+                  <td style="text-align: center">1030</td>
+                  <td style="text-align: right">381,931,272</td>
+                  <td style="text-align: right">184,531,148</td>
+                  <td style="text-align: right">1:09</td>
+                  <td style="text-align: right">125,575,644</td>
+                  <td style="text-align: right">1:57</td>
+                </tr>
+              </tbody>
+            </table>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+  <input
+    class="form-control my-4"
+    id="input"
+    type="file"
+    (change)="process($event)"
+    multiple
+    accept="image/jpeg,image/png,application/json,application/javascript,text/html"
+  />
+  @if (progressText) {
+    <div>Processing: {{ progressText }}</div>
+  }
+  @if (results.length > 0) {
+  <div id="output">
+    @for (result of results; track result.href) { @if (result.href){
+    <div>
+      <a href="{{ result.href }}" download="{{ result.download }}">{{
+        result.download
+      }}</a>
+      @if (result.download) {
+        <samp>{{ result.inFileSize }} ==> {{ result.outFileSize }}</samp>
+      }
+    </div>
+    } }
+  </div>
+  }
+</div>
