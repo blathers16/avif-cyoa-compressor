@@ -15,6 +15,7 @@
               comparison below.  Execution time is approximate on a Ryzen 9 5900X system with 64GB of DDR4 3600.  This program is multi-threaded,
               so if you have a cpu with less than 12 cores, you will see a greater difference between the two compression tools.
               Source code can be found <a href="https://github.com/blathers16/avif-cyoa-compressor">at this github repository.</a>
+            </p>
 
             <table>
               <thead>
@@ -55,6 +56,37 @@
                   <td style="text-align: right">1:09</td>
                   <td style="text-align: right">125,575,644</td>
                   <td style="text-align: right">1:57</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3>Version 2.0 updates (4-8-2024)</h3>
+            <p>
+              This program now supports converting GIF images inside of CYOAs.  Static GIF images will be converted into AVIF images
+              and animated GIFs will be converted into animated webp images. An updated table for the only CYOA in the sample set with
+              a GIF has been included.
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>CYOA</th>
+                  <th style="text-align: center">Number of Images</th>
+                  <th style="text-align: right">Original size</th>
+                  <th style="text-align: right">Webp Compressed size</th>
+                  <th style="text-align: right">Webp Elapsed Time</th>
+                  <th style="text-align: right">AVIF Compressed size</th>
+                  <th style="text-align: right">AVIF Elapsed Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Gyaru Gift</td>
+                  <td style="text-align: center">378</td>
+                  <td style="text-align: right">86,614,163</td>
+                  <td style="text-align: right">26,598,148</td>
+                  <td style="text-align: right">0:18</td>
+                  <td style="text-align: right">14,034,133</td>
+                  <td style="text-align: right">0:53</td>
                 </tr>
               </tbody>
             </table>

@@ -1,0 +1,11 @@
+1.0 - initial release
+
+2.0 -   cleaned up some code
+        added some comments
+        added more type annotations
+        now converts GIFs
+            animated GIFs are converted to animated webp images
+            static GIFs are converted to AVIF
+        added a benchmark for the one sample cyoa that had a GIFs
+        removed some files I forgot to delete
+        added this changelog
