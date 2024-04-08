@@ -9,10 +9,12 @@
           <ng-template>
             <p>
               This program is a modified version of u/agregen's CYOA Compressor for the browser modified to compress
-              to avif instead of webp.  All modern browsers now <a href="https://caniuse.com/avif">support</a> the avif format.
-              In general this produces files about half to two thirds the size of the <a href="">original CYOA Compressor</a>
-              at the expense of running much slower.  You can see a performance comparison below.  Execution time is approximate on
-              a Ryzen 9 5900X system with 64GB of DDR4 3600.
+              to avif instead of webp.  AVIF is based on the AV1 video format and is an open standard.  All modern browsers now 
+              <a href="https://caniuse.com/avif">support</a> the avif format. In general this produces files about half to two thirds 
+              the size of the <a href="">original CYOA Compressor</a> at the expense of running much slower.  You can see a performance 
+              comparison below.  Execution time is approximate on a Ryzen 9 5900X system with 64GB of DDR4 3600.  This program is multi-threaded,
+              so if you have a cpu with less than 12 cores, you will see a greater difference between the two compression tools.
+              Source code can be found <a href="https://github.com/blathers16/avif-cyoa-compressor">at this github repository.</a>
 
             <table>
               <thead>
