@@ -9,3 +9,14 @@
         added a benchmark for the one sample cyoa that had a GIFs
         removed some files I forgot to delete
         added this changelog
+
+3.0 -   more code cleanup
+        progressbar, tracks progress of actual dataurls
+        quality setting, passed directly to the cq parameter of the encoder
+            the encoder is libavif, I believe, but am not sure, that aom is the actual encoder being used
+        better styling
+        input and output size in megabytes or kilobytes depending on file size
+        elapsed encoding time using performance.now
+        uses the original image if it is somehow smaller than the converted image (probably only possible if you used silly quality settings)
+        file picker can be reset to upload the same image again (for instance with different quality settings)
+        cancelling the file select still preserves your last result

@@ -1,23 +1,21 @@
 /// <reference lib="webworker" />
 import encode, { init as initAvifEncode } from '@jsquash/avif/encode';
+
 import { ImageMagick, MagickFormat, initializeImageMagick } from '../../../node_modules/@imagemagick/magick-wasm';
 
 import { DoWorkUnit, runWorker } from 'observable-webworker';
 import { Observable, from } from 'rxjs';
 import { encode as b64encode } from 'base64-arraybuffer';
 
+import { OrderedString } from '../models/ordered-string';
+
 initAvifEncode(undefined, {
   // Customise the path to load the wasm file
-  locateFile: (path: string, prefix: string) => './assets/avif_enc.wasm'
+  locateFile: (path: string, prefix: string) => './assets/wasm/avif_enc.wasm'
 });
 
-interface orderedString {
-  s: string;
-  index: number;
-}
-
-export class CompressorWorker implements DoWorkUnit<orderedString, orderedString> {
-  public workUnit(input: orderedString): Observable<orderedString> {
+export class CompressorWorker implements DoWorkUnit<OrderedString, OrderedString> {
+  public workUnit(input: OrderedString): Observable<OrderedString> {
     return from(this.convert(input));
   }
   MIME = RegExp('image/([a-z]+)');
@@ -25,8 +23,8 @@ export class CompressorWorker implements DoWorkUnit<orderedString, orderedString
     s.match(
       '^(["\'`]data:image/(?:j?pe?n?g|webp|gif);base64,[a-zA-Z0-9+/]+={0,2}["\'`])$'
     ) && s[0] == s.slice(-1);
-  async convert(st: orderedString): Promise<orderedString> {
-   const { s, index } = st;
+  async convert(st: OrderedString): Promise<OrderedString> {
+   const { s, index, quality } = st;
     // if this string is an image
     if (this.isDataURL(s)) {
       // fetch it as a blob
@@ -40,7 +38,7 @@ export class CompressorWorker implements DoWorkUnit<orderedString, orderedString
         const byteArray = new Uint8Array(await blob.arrayBuffer());
         // there probably aren't a lot of animated gifs
         // so lets only initialize imagemagik if needed
-        await initializeImageMagick(new URL(`${location.origin}/assets/magick.wasm`, import.meta.url))
+        await initializeImageMagick(new URL(`${location.origin}/assets/wasm/magick.wasm`, import.meta.url))
         // use readCollection to read in all frames of the gif
         const imageBytes = ImageMagick.readCollection(byteArray,  (image) => {
           const result = image.write(MagickFormat.Webp, data => {
@@ -55,7 +53,11 @@ export class CompressorWorker implements DoWorkUnit<orderedString, orderedString
           return result;
         })
         const base64 = this.Uint8ToBase64(imageBytes);
-        return {s: `"data:image/webp;base64,${base64}"`, index: index}
+        let rs: string =  `"data:image/webp;base64,${base64}"`
+        if (rs.length > s.length){
+          rs = s;
+        }
+        return {s: rs, index: index, quality}
       } 
 
       // convert to imageData for avif encoder
@@ -65,22 +67,22 @@ export class CompressorWorker implements DoWorkUnit<orderedString, orderedString
       ctx!.drawImage(image, 0 ,0, image.width, image.height);
       const imageData = ctx!.getImageData(0, 0, image.width, image.height);
 
-      const avifBuffer = await encode(imageData!);
+      const avifBuffer = await encode(imageData!, {cqLevel: quality});
       const base64 = b64encode(avifBuffer);
-      return {s: `"data:image/avif;base64,${base64}"`, index: index};
+      let rs: string =  `"data:image/avif;base64,${base64}"`
+      if (rs.length > s.length){
+        rs = s;
+      }
+      return {s: rs, index: index, quality}
     } else {
       // if it isn't a image we return the string
       // as is
-      return {s: s, index: index};
+      return {s: s, index: index, quality};
     }
   }
 
   isGif(s: string): boolean {
     return s.slice(12, 15) === "gif"
-  }
-
-  isWebP(s: string): boolean {
-    return s.slice(12, 16) === "webp"
   }
 
   // somebody posted this in a github issue

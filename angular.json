@@ -31,7 +31,17 @@
 						"tsConfig": "tsconfig.app.json",
 						"assets": [
 							"src/favicon.ico",
-							"src/assets"
+							"src/assets",
+							{
+								"glob": "**/*.wasm",
+								"input": "./node_modules/@jsquash/",
+								"output": "./assets/wasm/"
+							},
+							{
+								"glob": "**/*.wasm",
+								"input": "./node_modules/@imagemagik/",
+								"output": "./assets/wasm/"
+							}
 						],
 						"styles": [
 							"src/styles.scss"

@@ -3,10 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "copy:assets && ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "watch": "ng build --watch",
+    "serve": "npx http-server dist/avif-cyoa-compressor",
+    "test": "ng test",
+    "copy:assets": "globby-cp node_modules/**/*.wasm src/assets/wasm/"
   },
   "private": true,
   "dependencies": {
@@ -24,6 +26,7 @@
     "@popperjs/core": "^2.11.8",
     "base64-arraybuffer": "^1.0.2",
     "bootstrap": "^5.3.3",
+    "globby-cp": "^1.3.0",
     "observable-webworker": "^6.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

@@ -1,4 +1,4 @@
-<div class="container pt-4">
+<div class="container pt-4 h-100">
   <div ngbAccordion>
     <div ngbAccordionItem>
       <h2 ngbAccordionHeader>
@@ -8,13 +8,21 @@
         <div ngbAccordionBody>
           <ng-template>
             <p>
-              This program is a modified version of u/agregen's CYOA Compressor for the browser modified to compress
-              to avif instead of webp.  AVIF is based on the AV1 video format and is an open standard.  All modern browsers now 
-              <a href="https://caniuse.com/avif">support</a> the avif format. In general this produces files about half to two thirds 
-              the size of the <a href="">original CYOA Compressor</a> at the expense of running much slower.  You can see a performance 
-              comparison below.  Execution time is approximate on a Ryzen 9 5900X system with 64GB of DDR4 3600.  This program is multi-threaded,
-              so if you have a cpu with less than 12 cores, you will see a greater difference between the two compression tools.
-              Source code can be found <a href="https://github.com/blathers16/avif-cyoa-compressor">at this github repository.</a>
+              This program is a modified version of u/agregen's CYOA Compressor
+              for the browser modified to compress to avif instead of webp. AVIF
+              is based on the AV1 video format and is an open standard. All
+              modern browsers now
+              <a href="https://caniuse.com/avif">support</a> the avif format. In
+              general this produces files about half to two thirds the size of
+              the <a href="">original CYOA Compressor</a> at the expense of
+              running much slower. You can see a performance comparison below.
+              Execution time is approximate on a Ryzen 9 5900X system with 64GB
+              of DDR4 3600. This program is multi-threaded, so if you have a cpu
+              with less than 12 cores, you will see a greater difference between
+              the two compression tools. Source code can be found
+              <a href="https://github.com/blathers16/avif-cyoa-compressor"
+                >at this github repository.</a
+              >
             </p>
 
             <table>
@@ -59,12 +67,23 @@
                 </tr>
               </tbody>
             </table>
+            <br />
 
             <h3>Version 2.0 updates (4-8-2024)</h3>
+            <ul>
+              <li>
+                now supports converting GIFs inside of CYOAs
+                <ul>
+                  <li>static GIFs will be converted into AVIF images</li>
+                  <li>
+                    animated GIFs will be converted into animated webp images
+                  </li>
+                </ul>
+              </li>
+            </ul>
             <p>
-              This program now supports converting GIF images inside of CYOAs.  Static GIF images will be converted into AVIF images
-              and animated GIFs will be converted into animated webp images. An updated table for the only CYOA in the sample set with
-              a GIF has been included.
+              An updated table for the only CYOA in the sample set with a GIF
+              has been included.
             </p>
             <table>
               <thead>
@@ -90,11 +109,65 @@
                 </tr>
               </tbody>
             </table>
+            <br />
+            <h3>Version 3.0 updates (4-9-2024)</h3>
+            <ul>
+              <li>progressbar, tracks progress of actual dataurls</li>
+              <li>
+                quality setting, passed directly to the cq parameter of the
+                encoder
+                <ul>
+                  <li>
+                    the encoder is libavif, I believe, but am not sure, that
+                    libaom is the actual encoder being used
+                  </li>
+                  <li>
+                    the full range for the cq setting is exposed, that doesn't
+                    mean, however, that all values will yield decent results
+                  </li>
+                  <li>
+                    in particular, setting it to extremly low values (high quality)
+                    is likely to simply spit out what you put in
+                  </li>
+                  <li>
+                    so far the quality setting does not effect encoding animated
+                    GIFS to webp
+                  </li>
+                </ul>
+              </li>
+              <li>better styling</li>
+              <li>
+                input and output size in megabytes or kilobytes depending on
+                file size
+              </li>
+              <li>elapsed encoding time using performance.now</li>
+              <li>
+                uses the original image if it is somehow smaller than the
+                converted image (probably only possible if you used silly
+                quality settings)
+              </li>
+              <li>
+                file picker can be reset to upload the same image again (for
+                instance with different quality settings)
+              </li>
+              <li>
+                cancelling the file select still preserves your last result
+              </li>
+            </ul>
+            <h4 class="known-issues-header">Version 3.0 Known Issues:</h4>
+            <ul>
+              <li>
+                Doesn't detect if a webp is animated or not before encoding it,
+                only the first frame of an animated webp will be encoded to
+                static AVIF
+              </li>
+            </ul>
           </ng-template>
         </div>
       </div>
     </div>
   </div>
+  @if (clearPicker) {
   <input
     class="form-control my-4"
     id="input"
@@ -103,21 +176,90 @@
     multiple
     accept="image/jpeg,image/png,application/json,application/javascript,text/html"
   />
-  @if (progressText) {
-    <div>Processing: {{ progressText }}</div>
+  } @else {
+  <input
+    class="form-control my-4"
+    id="input"
+    type="file"
+    (change)="process($event)"
+    multiple
+    accept="image/jpeg,image/png,application/json,application/javascript,text/html"
+  />
   }
-  @if (results.length > 0) {
-  <div id="output">
-    @for (result of results; track result.href) { @if (result.href){
-    <div>
-      <a href="{{ result.href }}" download="{{ result.download }}">{{
-        result.download
-      }}</a>
-      @if (result.download) {
-        <samp>{{ result.inFileSize }} ==> {{ result.outFileSize }}</samp>
-      }
-    </div>
-    } }
+
+  <ng-template #qualityTip class="qualityTip">
+    lower values mean higher quality<br />
+    try small changes to start
+  </ng-template>
+  <div class="mb-3 flex">
+    <label for="quality" class="form-label">Quality: {{ quality }}</label>
+    <input
+      type="range"
+      id="volume"
+      class="form-range"
+      name="quality"
+      min="0"
+      max="63"
+      [ngbTooltip]="qualityTip"
+      tooltipClass="my-custom-class"
+      #qualitySlider
+      [value]="quality"
+      (input)="setQuality(qualitySlider.value)"
+    />
+  </div>
+  <div class="d-flex justify-content-between">
+    <button type="button" class="btn my-button mb-3" (click)="setQuality('33')">
+      Reset Quality
+    </button>
+    <button
+      type="button"
+      class="btn my-button mb-3"
+      (click)="toggleClearPicker()"
+    >
+      Reset File Picker
+    </button>
+  </div>
+  @if (inProgress) {
+  <ngb-progressbar
+    class="mb-3"
+    [showValue]="true"
+    type="primary"
+    [value]="progress"
+    [max]="progressMax"
+  />
+  } @if (result && result.href && result.download) {
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Download</th>
+          <th scope="col">Input Size</th>
+          <th scope="col">Output Size</th>
+          <th scope="col">Elapsed Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <a href="{{ result.href }}" download="{{ result.download }}">{{
+              result.download
+            }}</a>
+          </td>
+          <td>{{ result.inFileSize }}</td>
+          <td>{{ result.outFileSize }}</td>
+          <td>
+            <time
+              dateTime="PT{{ stripLeadingZeros(elapsedTime.split(':')[0]) }}H{{
+                stripLeadingZeros(elapsedTime.split(':')[1])
+              }}M{{
+                stripLeadingZeros(elapsedTime.split(':')[2].split('.')[0])
+              }}S"
+              >{{ elapsedTime }}</time
+            >
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
   }
 </div>
