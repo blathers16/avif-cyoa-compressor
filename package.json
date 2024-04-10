@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "copy:assets && ng serve",
+    "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch",
     "serve": "npx http-server dist/avif-cyoa-compressor",

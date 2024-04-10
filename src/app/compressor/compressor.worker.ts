@@ -26,7 +26,7 @@ export class CompressorWorker implements DoWorkUnit<OrderedString, OrderedString
   async convert(st: OrderedString): Promise<OrderedString> {
    const { s, index, quality } = st;
     // if this string is an image
-    if (this.isDataURL(s)) {
+    if (this.isDataURL(s) && (!this.isWebp(s) || !this.isAnimatedWebp(s))) {
       // fetch it as a blob
       const blob = await (await fetch(s.slice(1, -1))).blob();
 
@@ -79,6 +79,18 @@ export class CompressorWorker implements DoWorkUnit<OrderedString, OrderedString
       // as is
       return {s: s, index: index, quality};
     }
+  }
+
+  isWebp(s: string): boolean {
+    return s.slice(12, 16) === 'webp'
+  }
+  // detect base64 encoded ANIM chunk
+  // which controls animation
+  // should not occur in a non animated image
+  // some misbehaved applications might insert it anyways
+  // https://developers.google.com/speed/webp/docs/riff_container
+  isAnimatedWebp(s: string) {
+    return s.slice(64, 70) === 'QU5JTQ';
   }
 
   isGif(s: string): boolean {
