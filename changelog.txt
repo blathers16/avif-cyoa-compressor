@@ -20,3 +20,8 @@
         uses the original image if it is somehow smaller than the converted image (probably only possible if you used silly quality settings)
         file picker can be reset to upload the same image again (for instance with different quality settings)
         cancelling the file select still preserves your last result
+
+3.1 -   file select no longer allows selecting multiple files despite being unable to process more than one file
+        now detects animated webp images and no longer converts them to static AVIF
+        updated build process and instructions
+        removed wasm files from git
