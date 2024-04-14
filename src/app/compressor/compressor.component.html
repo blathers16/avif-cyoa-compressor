@@ -126,8 +126,8 @@
                     mean, however, that all values will yield decent results
                   </li>
                   <li>
-                    in particular, setting it to extremly low values (high quality)
-                    is likely to simply spit out what you put in
+                    in particular, setting it to extremly low values (high
+                    quality) is likely to simply spit out what you put in
                   </li>
                   <li>
                     so far the quality setting does not effect encoding animated
@@ -154,13 +154,30 @@
                 cancelling the file select still preserves your last result
               </li>
             </ul>
-            <h4 class="known-issues-header">Version 3.0 Known Issues:</h4>
+            <h4 class="known-issues-header">
+              <s>Version 3.0 Known Issues:</s>
+            </h4>
             <ul>
               <li>
-                Doesn't detect if a webp is animated or not before encoding it,
-                only the first frame of an animated webp will be encoded to
+                <s>
+                  Doesn't detect if a webp is animated or not before encoding
+                  it, only the first frame of an animated webp will be encoded
+                  to static AVIF
+                </s>
+              </li>
+            </ul>
+            <h3>Version 3.1 updates (4-14-2024)</h3>
+            <ul>
+              <li>
+                now detects animated webp images and no longer converts them to
                 static AVIF
               </li>
+              <li>
+                file select no longer allows selecting multiple files despite
+                being unable to process more than one file
+              </li>
+              <li>updated build process</li>
+              <li>removed wasm files from git</li>
             </ul>
           </ng-template>
         </div>
