@@ -25,3 +25,5 @@
         now detects animated webp images and no longer converts them to static AVIF
         updated build process
         removed wasm files from git
+
+3.2 -   update packages
