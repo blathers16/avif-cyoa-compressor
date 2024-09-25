@@ -41,7 +41,7 @@ export class CompressorWorker implements DoWorkUnit<OrderedString, OrderedString
         await initializeImageMagick(new URL(`${location.origin}/assets/wasm/magick.wasm`, import.meta.url))
         // use readCollection to read in all frames of the gif
         const imageBytes = ImageMagick.readCollection(byteArray,  (image) => {
-          const result = image.write(MagickFormat.Webp, data => {
+          const result = image.write(MagickFormat.WebP, data => {
             // we have to copy the image to a new object because
             // the memory will be freed by the
             // web assembly code when it leaves this

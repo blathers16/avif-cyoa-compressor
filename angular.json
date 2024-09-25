@@ -20,12 +20,11 @@
 			"prefix": "app",
 			"architect": {
 				"build": {
-					"builder": "@angular-devkit/build-angular:application",
+					"builder": "@angular-devkit/build-angular:browser",
 					"options": {
-						"outputPath": {
-              "base": "dist/avif-cyoa-compressor"
-            },
-            "index": "src/index.html",
+						"outputPath": "dist/avif-cyoa-compressor",
+						"index": "src/index.html",
+						"main": "src/main.ts",
 						"polyfills": [
 							"zone.js"
 						],
@@ -38,8 +37,7 @@
 							"src/styles.scss"
 						],
             "scripts": [],
-            "webWorkerTsConfig": "tsconfig.worker.json",
-            "browser": "src/main.ts"
+            "webWorkerTsConfig": "tsconfig.worker.json"
 					},
 					"configurations": {
 						"production": {
@@ -55,12 +53,14 @@
 									"maximumError": "4kb"
 								}
 							],
-              "outputHashing": "all"
+							"outputHashing": "all",
+							"buildOptimizer": true
 						},
 						"development": {
 							"optimization": false,
 							"extractLicenses": false,
-              "sourceMap": true
+							"sourceMap": true,
+							"buildOptimizer": false
 						}
 					},
 					"defaultConfiguration": "production"
