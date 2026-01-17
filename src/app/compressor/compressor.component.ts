@@ -10,12 +10,22 @@ import {
   NgbProgressbar,
   NgbTooltip,
 } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, concatAll, from, map, reduce, tap } from 'rxjs';
+import { Observable, concatAll, from, map, mergeAll, reduce, tap } from 'rxjs';
 
 import { DownloadData } from '../models/download-data';
 import { OrderedString } from '../models/ordered-string';
 
+import {
+  isDataURLIncludingAvif,
+  isImageURL,
+  DATAURLINCLUDINGAVIF,
+  IMAGEURL,
+  isJSONFileName,
+  ANYDATAURL,
+  isANYDATAURL,
+} from '../utilities/regex';
 
+import { formatSize } from '../utilities/utils';
 @Component({
   selector: 'app-compressor',
   standalone: true,
@@ -47,33 +57,6 @@ export class CompressorComponent {
 
   clearPicker: boolean = true;
 
-  MIME = RegExp('image/([a-z]+)');
-  // regex for finding data image dataURLs
-  // currently setup to find jpeg, jpg, png, webp, and gif
-  DATAURL = RegExp(
-    '(["\'`]data:image/(?:j?pe?n?g|webp|gif);base64,[a-zA-Z0-9+/]+={0,2}["\'`])'
-  ); // parens for split()
-  // formatter for file sizes
-  formatSize(n: string): string {
-    const bytes: number = parseInt(n);
-    //if over a MegaByte (binary)
-    if (bytes >= 1048576) {
-      const mBytes: number = bytes / 1048576;
-      return `${(Math.round(mBytes * 100) / 100).toLocaleString()} MiB`
-      // else if over a KiloByte (binary)
-    } else if (bytes > 1024) {
-      const kBytes: number = bytes / 1024;
-      return `${Math.round(kBytes).toLocaleString()} KiB`
-    } else {
-      return `${bytes.toLocaleString()} Bytes`
-    }
-  };
-  // match dataURLs for progressbar
-  isDataURLIncludingAvif = (s: string) =>
-    s.match(
-      '^(["\'`]data:image/(?:j?pe?n?g|webp|gif|avif);base64,[a-zA-Z0-9+/]+={0,2}["\'`])$'
-    ) && s[0] == s.slice(-1);
-
   // dispatcher for web workers using observable-webworker
   // https://github.com/cloudnc/observable-webworker
   convertText(s: any[]): Observable<OrderedString[]> {
@@ -82,12 +65,12 @@ export class CompressorComponent {
         new Worker(new URL('./compressor.worker', import.meta.url), {
           type: 'module',
         }),
-      s
+      s,
     );
   }
 
   stripLeadingZeros(s: string): string {
-    return parseInt(s).toString()
+    return parseInt(s).toString();
   }
 
   setQuality(s: string): void {
@@ -101,7 +84,7 @@ export class CompressorComponent {
   toggleClearPicker() {
     this.clearPicker = !this.clearPicker;
   }
-  
+
   // main function to setup conversion
   // takes a File object as input
   // todo: figure out typing for return type
@@ -112,7 +95,7 @@ export class CompressorComponent {
       tap((x) => (this.inProgress = true)),
       // split the string into an array of strings
       // that are the dataURLs and the stuff before and after them
-      map((x: string): string[] => x.split(this.DATAURL)),
+      map((x: string): string[] => x.split(ANYDATAURL)),
       // store length of array for progressbar
       // only include dataURLs
       // slight inaccuracies due to being
@@ -122,24 +105,26 @@ export class CompressorComponent {
       // by us or were already in AVIF format
       tap(
         (x: string[]) =>
-          (this.progressMax = x.filter((x) =>
-            this.isDataURLIncludingAvif(x)
-          ).length)
+          (this.progressMax =
+            x.filter((x) => isDataURLIncludingAvif(x)).length > 0
+              ? x.filter((x) => isDataURLIncludingAvif(x)).length
+              : 100)
       ),
       // annotate our strings with their index in the array so we
       // can put them back together in the right order later
       map((x) =>
         x.map((st: string, i: number): OrderedString => {
           return { s: st, index: i, quality: this.quality };
-        })
+        }),
       ),
       // send the strings off to the dispatch function
       // data urls will be converted, and others will be returned
       // as-is
       map(
-        (x: OrderedString[]): Observable<OrderedString[]> => this.convertText(x)
+        (x: OrderedString[]): Observable<OrderedString[]> =>
+          this.convertText(x),
       ),
-      concatAll()
+      mergeAll()
     );
   }
 
@@ -153,10 +138,35 @@ export class CompressorComponent {
     }
   }
 
+  async displayFile(
+    outFile: File,
+    inFileSizeRaw: number,
+    startTime: number,
+  ): Promise<void> {
+    // hide progressbar
+    this.inProgress = false;
+    // mark completion time
+    const endTime: number = performance.now();
+
+    // runtime in milliseconds with decimal
+    const elapsedMS: number = endTime - startTime;
+
+    this.elapsedTime = new Date(elapsedMS).toISOString().slice(11, -3);
+
+    // and push to DOM
+    this.result = {
+      href: URL.createObjectURL(outFile),
+      download: outFile.name,
+      innerText: outFile.name,
+      inFileSize: formatSize(inFileSizeRaw.toString()),
+      outFileSize: formatSize(outFile.size.toString()),
+    };
+  }
+
   result: DownloadData | null = null;
 
   async process(e: Event | null): Promise<void> {
-    if(!e) return 
+    if (!e) return;
     const target = e.target as HTMLInputElement;
     let infiles = target.files;
     // incase you canceled the file select, you won't lose your
@@ -167,10 +177,10 @@ export class CompressorComponent {
 
     // revoke any references to previously compressed
     // CYOAs to free memory
-    if(this.result?.href) {
-      URL.revokeObjectURL(this.result.href)
+    if (this.result?.href) {
+      URL.revokeObjectURL(this.result.href);
     }
-    
+
     this.result = null;
 
     const infile: File = infiles[0];
@@ -180,32 +190,24 @@ export class CompressorComponent {
       .pipe(
         // update progressbar
         // also update progress for AVIFs that were already in the CYOA
-        tap((x: OrderedString) => this.isDataURLIncludingAvif(x.s) ? this.progress++ : null),
+        tap((x: OrderedString) =>
+          isDataURLIncludingAvif(x.s) ? this.progress++ : null,
+        ),
         // collect all the results together into one array
         reduce(
           (acc: OrderedString[], value: OrderedString): OrderedString[] => [
             ...acc,
             value,
           ],
-          [] as OrderedString[]
-        )
+          [] as OrderedString[],
+        ),
       )
-      .subscribe((convertedFiles: OrderedString[]) => {
-        // hide progressbar
-        this.inProgress = false;
-
-        const endTime: number = performance.now()
-
-        // runtime in milliseconds with decimal
-        const elapsedMS: number = endTime - startTime;
-
-        this.elapsedTime = new Date(elapsedMS).toISOString().slice(11, -3)
-
+      .subscribe(async (convertedFiles: OrderedString[]) => {
         // these arrive in whatever order they convert in, so we need to sort them
         convertedFiles.sort(this.sortResults);
         // remove the annotation used for sorting
         const withoutIndices: string[] = convertedFiles.map(
-          (x: OrderedString) => x.s
+          (x: OrderedString) => x.s,
         );
         // join to a single string
         const fileString: string = withoutIndices.join('');
@@ -214,13 +216,7 @@ export class CompressorComponent {
         // and create a file
         const outfile = new File([blob], infile.name, { type: infile.type });
         // and push to DOM
-        this.result = {
-          href: URL.createObjectURL(outfile),
-          download: outfile.name,
-          innerText: outfile.name,
-          inFileSize: this.formatSize(infile.size.toString()),
-          outFileSize: this.formatSize(outfile.size.toString()),
-        };
+        await this.displayFile(outfile, infile.size, startTime);
       });
   }
 }
