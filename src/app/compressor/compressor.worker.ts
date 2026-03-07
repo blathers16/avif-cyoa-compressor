@@ -11,7 +11,7 @@ import { DoWorkUnit, runWorker } from 'observable-webworker';
 import { Observable, from } from 'rxjs';
 import { encode as b64encode } from 'base64-arraybuffer';
 import { OrderedString } from '../models/ordered-string';
-import { isDataURL, isDataURLIncludingAvif } from '../utilities/regex';
+import { isANYDATAURL, isDataURL, isDataURLIncludingAvif } from '../utilities/regex';
 import { fixMime, isAnimatedWebp, isGif, isWebp } from '../utilities/dataURLs';
 import {
   copyUint8Array,
@@ -54,7 +54,7 @@ export class CompressorWorker
     // if this string is a image dataURL,
     // try to id the file and fix the mime type
     // if needed
-    if (isDataURLIncludingAvif(s)) {
+    if (isANYDATAURL(s)) {
       s = fixMime(s);
     }
     if (

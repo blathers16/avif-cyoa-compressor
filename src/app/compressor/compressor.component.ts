@@ -10,42 +10,36 @@ import {
   NgbProgressbar,
   NgbTooltip,
 } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, concatAll, from, map, mergeAll, reduce, tap } from 'rxjs';
+import { Observable, from, map, mergeAll, reduce, tap } from 'rxjs';
 
 import { DownloadData } from '../models/download-data';
 import { OrderedString } from '../models/ordered-string';
 
 import {
   isDataURLIncludingAvif,
-  isImageURL,
-  DATAURLINCLUDINGAVIF,
-  IMAGEURL,
-  isJSONFileName,
   ANYDATAURL,
-  isANYDATAURL,
 } from '../utilities/regex';
 
 import { formatSize } from '../utilities/utils';
 @Component({
-  selector: 'app-compressor',
-  standalone: true,
-  imports: [
-    NgbAccordionDirective,
-    NgbAccordionItem,
-    NgbAccordionHeader,
-    NgbAccordionButton,
-    NgbAccordionCollapse,
-    NgbAccordionBody,
-    NgbTooltip,
-    NgbProgressbar,
-  ],
-  templateUrl: './compressor.component.html',
-  styleUrl: './compressor.component.scss',
+    selector: 'app-compressor',
+    imports: [
+        NgbAccordionDirective,
+        NgbAccordionItem,
+        NgbAccordionHeader,
+        NgbAccordionButton,
+        NgbAccordionCollapse,
+        NgbAccordionBody,
+        NgbTooltip,
+        NgbProgressbar,
+    ],
+    templateUrl: './compressor.component.html',
+    styleUrl: './compressor.component.scss'
 })
 export class CompressorComponent {
   // quality setting
   // passed as cq setting to libavif
-  quality: number = 33;
+  quality: number = 27;
   // progressbar current
   progress: number = 0;
   // progressbar max
@@ -93,6 +87,7 @@ export class CompressorComponent {
     return from(file.text()).pipe(
       // show progressbar
       tap((x) => (this.inProgress = true)),
+      tap(() => console.log(this.inProgress)),
       // split the string into an array of strings
       // that are the dataURLs and the stuff before and after them
       map((x: string): string[] => x.split(ANYDATAURL)),

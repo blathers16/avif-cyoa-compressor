@@ -62,8 +62,6 @@ export const fixMime: Function = (dataURL: string): string => {
 
   const declaredMime = getDeclaredMimeType(dataURL);
   const actualMime = getActualMimeType(dataURL);
-  console.log(actualMime)
-  console.log(declaredMime)
   if (
     declaredMime &&
     declaredMime !== actualMime &&
