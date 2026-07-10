@@ -27,8 +27,9 @@
             },
             "index": "src/index.html",
 						"polyfills": [
-							"zone.js"
-						],
+              "zone.js",
+              "@angular/localize/init"
+            ],
 						"tsConfig": "tsconfig.app.json",
 						"assets": [
 							"src/favicon.ico",
@@ -87,9 +88,10 @@
 					"builder": "@angular/build:karma",
 					"options": {
 						"polyfills": [
-							"zone.js",
-							"zone.js/testing"
-						],
+              "zone.js",
+              "zone.js/testing",
+              "@angular/localize/init"
+            ],
 						"tsConfig": "tsconfig.spec.json",
 						"assets": [
 							"src/favicon.ico",

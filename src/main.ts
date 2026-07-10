@@ -1,6 +1,5 @@
 import { provideZoneChangeDetection } from "@angular/core";
 /// <reference types="@angular/localize" />
-import '@angular/localize/init';
 
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';

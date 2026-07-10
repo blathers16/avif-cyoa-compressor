@@ -8,7 +8,7 @@
     "watch": "npm run clean:assets && npm run copy:assets && ng build --watch",
     "serve": "npx http-server dist/avif-cyoa-compressor",
     "test": "npm run clean:assets && npm run copy:assets && ng test",
-    "copy:assets": "globby-cp node_modules/**/*.wasm src/assets/wasm/",
+    "copy:assets": "globby-cp node_modules/**/avif*.wasm src/assets/wasm/ && globby-cp node_modules/**/magick.wasm src/assets/wasm/",
     "clean:assets": "del-cli src/assets/wasm/*.wasm"
   },
   "private": true,

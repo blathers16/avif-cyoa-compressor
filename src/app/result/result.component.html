@@ -1,0 +1,35 @@
+  @if (result() && result()?.href && result()?.download) {
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Download</th>
+          <th scope="col">Input Size</th>
+          <th scope="col">Output Size</th>
+          <th scope="col">Elapsed Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <a href="{{ result()?.href }}" download="{{ result()?.download }}">{{
+              result()?.download
+            }}</a>
+          </td>
+          <td>{{ result()?.inFileSize }}</td>
+          <td>{{ result()?.outFileSize }}</td>
+          <td>
+            <time
+              dateTime="PT{{ stripLeadingZeros(elapsedTime().split(':')[0]) }}H{{
+                stripLeadingZeros(elapsedTime().split(':')[1])
+              }}M{{
+                stripLeadingZeros(elapsedTime().split(':')[2].split('.')[0])
+              }}S"
+              >{{ elapsedTime() }}</time
+            >
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+}

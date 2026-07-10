@@ -50,6 +50,7 @@ export class CompressorWorker
   magickInitialized = false;
   initialized = false;
   async convert(st: OrderedString): Promise<OrderedString> {
+    console.log('converting');
     let { s, index, quality } = st;
     // if this string is a image dataURL,
     // try to id the file and fix the mime type
@@ -114,6 +115,7 @@ export class CompressorWorker
         return { s: s, index: index, quality };
       }
     } else {
+      console.log('conversion skipped');
       // if it isn't a image we return the string
       // as is
       return { s: s, index: index, quality };
