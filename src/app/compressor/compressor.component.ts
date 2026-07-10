@@ -115,7 +115,6 @@ export class CompressorComponent {
     this.progress.set(0);
     
     this.inProgress.set(true);
-    console.log('setting in progress');
     this.compressorService.convert(infile, this.quality())
       .pipe(
         takeUntilDestroyed(this.destroyRef),

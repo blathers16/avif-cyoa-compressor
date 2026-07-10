@@ -28,5 +28,8 @@
 
 3.2 -   update packages
 
-4.0 -   update packages
-        major refactor - code cleanup
+4.0 -   fixes for mime type detection, don't remember what else,
+        ng-bootstrap might have been broken
+
+5.0 -   major refactor
+        update packages

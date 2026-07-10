@@ -47,7 +47,7 @@ export const Uint8ToBase64: Function = (u8Arr: Uint8Array): string => {
 };
 
 export const isGifAnimated: Function = async (s: string): Promise<Boolean> => {
-  const blob = await (await fetch(s.slice(1, -1))).blob();
+  const blob = await (await fetch(s)).blob();
   const buffer = await blob.arrayBuffer();
   // Start from last 4 bytes of the Logical Screen Descriptor
   const dv = new DataView(buffer, HEADER_LEN + LOGICAL_SCREEN_DESC_LEN - 3);

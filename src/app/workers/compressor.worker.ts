@@ -11,7 +11,7 @@ import { DoWorkUnit, runWorker } from 'observable-webworker';
 import { Observable, from } from 'rxjs';
 import { encode as b64encode } from 'base64-arraybuffer';
 import { OrderedString } from '../models/ordered-string';
-import { isANYDATAURL, isDataURL, isDataURLIncludingAvif } from '../utilities/regex';
+import { isANYDATAURL, isDataURL } from '../utilities/regex';
 import { fixMime, isAnimatedWebp, isGif, isWebp } from '../utilities/dataURLs';
 import {
   copyUint8Array,
@@ -50,8 +50,8 @@ export class CompressorWorker
   magickInitialized = false;
   initialized = false;
   async convert(st: OrderedString): Promise<OrderedString> {
-    console.log('converting');
     let { s, index, quality } = st;
+
     // if this string is a image dataURL,
     // try to id the file and fix the mime type
     // if needed
@@ -62,17 +62,17 @@ export class CompressorWorker
       // if this string is an image
       isDataURL(s) &&
       // and isn't an animated webp
-      (!isWebp(s.slice(1, -1)) || !isAnimatedWebp(s.slice(1, -1)))
+      (!isWebp(s.slice(1,-1)) || !isAnimatedWebp(s.slice(1,-1)))
     ) {
       try {
         // fetch it as a blob
-        const blob = await (await fetch(s.slice(1, -1))).blob();
+        const blob = await (await fetch(s.slice(1,-1))).blob();
 
         // detect animated gifs; convert to animated webp
         // todo: update to use animated avif when
         // https://github.com/ImageMagick/ImageMagick/issues/6380
         // is fixed
-        if (isGif(s) && (await isGifAnimated(s))) {
+        if (isGif(s.slice(1,-1)) && (await isGifAnimated(s.slice(1,-1)))) {
           const byteArray = new Uint8Array(await blob.arrayBuffer());
           // there probably aren't a lot of animated gifs
           // so lets only initialize imagemagik if needed
@@ -115,7 +115,6 @@ export class CompressorWorker
         return { s: s, index: index, quality };
       }
     } else {
-      console.log('conversion skipped');
       // if it isn't a image we return the string
       // as is
       return { s: s, index: index, quality };

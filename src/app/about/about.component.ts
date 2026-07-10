@@ -6,22 +6,20 @@ import {
   NgbAccordionCollapse,
   NgbAccordionDirective,
   NgbAccordionHeader,
-  NgbAccordionItem
+  NgbAccordionItem,
 } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-about',
   imports: [
     NgbAccordionBody,
-  NgbAccordionButton,
-  NgbAccordionCollapse,
-  NgbAccordionDirective,
-  NgbAccordionHeader,
-  NgbAccordionItem,
+    NgbAccordionButton,
+    NgbAccordionCollapse,
+    NgbAccordionDirective,
+    NgbAccordionHeader,
+    NgbAccordionItem,
   ],
   templateUrl: './about.component.html',
   styleUrl: './about.component.scss',
 })
-export class AboutComponent {
-
-}
+export class AboutComponent {}

@@ -28,7 +28,6 @@ export class CompressorService {
     // takes a File object as input
     // todo: figure out typing for return type
     convert(file: File, quality: number): Observable<OrderedString> {
-      console.log('conversion started');
       // turn our file into a string
       return from(file.text()).pipe(
         // split the string into an array of strings
